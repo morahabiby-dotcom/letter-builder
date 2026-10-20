@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Letter Builders</title>
+<style>
+:root{--bg:#e8f6ff;--card:#fff;--ink:#23305e;--line:#7cc6f2;--good:#1fae6b;--goodbg:#d9f7e8;--oops:#e2564f;--oopsbg:#ffe3e0;--btn:#ff7a3d;--btntxt:#fff;--opt:#eef3ff;--optb:#c4d2f7;--paper:#fffdf3;--paperb:#e5dca8;--hi:#fff1a8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14203d;--card:#1f2f58;--ink:#f3f6ff;--line:#4a8fc4;--good:#58e0a0;--goodbg:#1d4a3b;--oops:#ff8f87;--oopsbg:#4d2a33;--btn:#ffa05e;--btntxt:#2a1405;--opt:#2c3f70;--optb:#4f67a8;--paper:#2b3356;--paperb:#5a6499;--hi:#5b5a2a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14203d;--card:#1f2f58;--ink:#f3f6ff;--line:#4a8fc4;--good:#58e0a0;--goodbg:#1d4a3b;--oops:#ff8f87;--oopsbg:#4d2a33;--btn:#ffa05e;--btntxt:#2a1405;--opt:#2c3f70;--optb:#4f67a8;--paper:#2b3356;--paperb:#5a6499;--hi:#5b5a2a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Fredoka","Baloo 2","Comic Sans MS","Trebuchet MS",system-ui,sans-serif;font-size:20px;line-height:1.35;min-height:100vh;display:flex;justify-content:center}
+main{width:100%;max-width:640px;padding:16px;display:flex;flex-direction:column;gap:14px}
+h1{font-size:2.1rem;margin:0;text-align:center;line-height:1.1}
+h2{font-size:1.4rem;margin:0 0 8px}
+p{margin:0}
+.card{background:var(--card);border:4px solid var(--line);border-radius:28px;padding:16px;text-align:center}
+.big{font-size:3.6rem;line-height:1}
+.parts{display:grid;gap:8px;text-align:left}
+.part{background:var(--opt);border-radius:16px;padding:8px 12px;font-size:1rem}
+.part b{font-size:1.05rem}
+button{font:inherit;color:inherit;cursor:pointer;border:0}
+.go{background:var(--btn);color:var(--btntxt);font-size:1.5rem;font-weight:700;border-radius:999px;padding:14px 30px;box-shadow:0 5px 0 rgba(0,0,0,.22);align-self:center}
+.go:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.22)}
+.bar{display:flex;align-items:center;gap:10px;font-weight:700}
+.track{flex:1;height:16px;border-radius:99px;background:var(--opt);overflow:hidden}
+.fill{height:100%;background:var(--good);border-radius:99px;transition:width .4s}
+.opts{display:grid;gap:12px}
+.opt{background:var(--opt);border:4px solid var(--optb);border-radius:22px;padding:12px;font-size:1.2rem;font-weight:600;min-height:62px;text-align:center}
+.opt:focus-visible,.go:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
+.opt.good{background:var(--goodbg);border-color:var(--good)}
+.opt.bad{background:var(--oopsbg);border-color:var(--oops);animation:sh .35s}
+.opt[disabled]{opacity:.9;cursor:default}
+@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.fb{min-height:3.4em;font-weight:600;font-size:1.1rem}
+.fb.good{color:var(--good)}.fb.bad{color:var(--oops)}
+.stars{font-size:2.3rem;letter-spacing:4px}
+.paper{background:var(--paper);border:3px solid var(--paperb);border-radius:14px;padding:12px;text-align:left;font-size:.88rem;line-height:1.3;display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto}
+.paper .r{text-align:right}
+.paper .new{background:var(--hi);border-radius:8px;padding:3px 5px;animation:pp .5s}
+.paper .ask{border:3px dashed var(--btn);border-radius:10px;padding:6px;text-align:center;font-weight:700;font-size:1rem}
+.paper .ask.r{margin-left:35%}
+.q{font-size:1.15rem;font-weight:600;background:var(--paper);border:3px solid var(--paperb);border-radius:16px;padding:12px}
+@keyframes pp{0%{transform:scale(.9)}70%{transform:scale(1.04)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+// Letter parts (from Mrs Eze's letter): [text, right-aligned?, question, options(first = correct), why]
+var B=[
+["<b>Sugarloaf View Hotel</b><br>Avenida Atlantica<br>Rio de Janeiro",1,"Where do we write OUR address?",["Top right 👉","Top left","At the bottom"],"Our address goes at the top on the right, so they know where to reply."],
+["3 August 2021",1,"What goes under our address?",["The date 📅","Our favourite food","A joke"],"The date shows when we wrote the letter."],
+["<b>Butterfly Adventures</b><br>Av. Salvador Allende<br>Rio de Janeiro",0,"Whose address goes on the LEFT?",["The company we write to 🏢","Our best friend","Our teacher"],"The address of the person or company we write to goes on the left."],
+["Dear Butterfly Adventures",0,"How do we begin the letter?",["Dear Butterfly Adventures","Hey you!","Bye bye!"],"We say “Dear” and then the name. It is polite!"],
+["I am writing to complain about our disappointing walking tour.",0,"Paragraph 1: what do we say first?",["Why we are writing ✍️","What we ate for lunch","Goodbye"],"The first paragraph tells them why we are writing."],
+["The girls were out of control. They scared away the wildlife.",0,"Middle paragraph: what do we write?",["What went wrong 😟","A funny story","Our favourite colour"],"The middle says what went wrong, with clear details."],
+["Please contact me at the address above with your response.",0,"Last paragraph: what do we ask for?",["What we want them to do 🙏","Nothing at all","A new toy"],"The end says what we want them to do about it."],
+["Yours sincerely",0,"How do we finish a letter to “Dear Butterfly Adventures”?",["Yours sincerely","See you later!","Love and kisses"],"“Yours sincerely” is the polite way to finish a formal letter."],
+["<b>Grace Eze</b>",0,"What goes last, at the very end?",["Our name ✏️","A picture","The date again"],"We sign our name at the very end."]
+];
+function letter(i){var h='<div class="paper" role="img" aria-label="the letter so far">';
+for(var k=0;k<=i&&k<B.length;k++){var b=B[k],c=b[1]?"r":"";
+if(k==i)h+='<div class="ask '+c+'">❓ ? ❓</div>';else h+='<div class="'+c+(k==i-1?" new":"")+'">'+b[0]+'</div>'}
+return h+'</div>'}
+function mk(){var a=[];B.forEach(function(b,i){a.push({t:b[2],vis:function(){return letter(i)},o:b[3],c:b[3][0],why:b[4],after:i==B.length-1?"":""})});return a}
+var T=["📢 Statement","❓ Question","❗ Exclamation","👉 Instruction"];
+function sq(s,k,why){return{t:"What type of sentence is this?",vis:function(){return '<div class="q">“'+s+'”</div>'},o:T,c:T[k],why:why,fixed:1}}
+var SENT=[
+sq("I am writing to complain about our disappointing walking tour.",0,"It tells us something, and it ends with a full stop."),
+sq("How was this safe or legal?",1,"It asks something, and it ends with a question mark."),
+sq("What a disappointing end to a disappointing day that was!",2,"It shows a big feeling, and it ends with an exclamation mark."),
+sq("Please contact me at the address above with your response.",3,"It tells someone what to do."),
+sq("Give me a full refund.",3,"It is a polite order, so it is an instruction."),
+sq("Do you think that is right?",1,"It asks something, so it has a question mark.")
+];
+var FO=["✅ Fact","💭 Opinion"];
+function fo(s,k,why){return{t:"Fact or opinion?",vis:function(){return '<div class="q">“'+s+'”</div>'},o:FO,c:FO[k],why:why,fixed:1}}
+var FACT=[
+fo("The tour was in Tijuca National Park.",0,"We can check it. It is true!"),
+fo("The girls were totally out of control.",1,"It is what she thinks and feels."),
+fo("Children under 16 must have an adult.",0,"It is a rule that we can check."),
+fo("The waterfall was an idyllic spot.",1,"“Idyllic” means beautiful. That is her opinion."),
+fo("Four other people were on the tour.",0,"We can count them. It is a fact."),
+fo("It was a disappointing day.",1,"It is how she feels, so it is an opinion.")
+];
+var ROUNDS=[["Build the letter",mk],["Sentence types",function(){return SENT}],["Fact or opinion",function(){return FACT}]];
+var app=document.getElementById("app"),stars=0,ri=0,qs=[],qi=0,first=true,audio,total=0;
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function beep(f,d){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();var o=audio.createOscillator(),g=audio.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+d)}catch(e){}}
+function start(){
+app.innerHTML='<h1>✉️ Letter Builders</h1><div class="card"><div class="big">📮</div><h2>Let’s write a letter of complaint!</h2><p>A complaint letter says politely that something went wrong. Here are the main ideas:</p></div>'+
+'<div class="parts"><div class="part"><b>1. Addresses and date</b> Ours on the top right, theirs on the left.</div><div class="part"><b>2. “Dear …”</b> A polite start.</div><div class="part"><b>3. Paragraphs</b> Why we write, what went wrong, what we want.</div><div class="part"><b>4. “Yours sincerely”</b> and our name.</div></div>'+
+'<button class="go" id="s1">Let’s build! 🚀</button>';
+document.getElementById("s1").onclick=function(){stars=0;total=0;ri=0;loadRound()}}
+function loadRound(){qs=ROUNDS[ri][1]();if(ri>0)qs=shuf(qs);qi=0;show()}
+function show(){
+first=true;var q=qs[qi];
+app.innerHTML='<div class="bar"><span>'+ROUNDS[ri][0]+'</span><div class="track"><div class="fill" style="width:'+(qi/qs.length*100)+'%"></div></div><span>⭐ '+stars+'</span></div><div class="card"><h2>'+q.t+'</h2>'+q.vis()+'</div><div class="opts" id="o"></div><p class="fb" id="fb" aria-live="polite"></p>';
+var o=document.getElementById("o");if(q.fixed)o.style.gridTemplateColumns="1fr 1fr";
+(q.fixed?q.o:shuf(q.o)).forEach(function(t){var b=document.createElement("button");b.className="opt";b.textContent=t;b.onclick=function(){ans(b,t===q.c,q)};o.appendChild(b)})}
+function ans(b,ok,q){
+var fb=document.getElementById("fb");
+if(ok){if(first){stars++}total+=first?1:0;beep(660,.15);setTimeout(function(){beep(880,.2)},150);
+b.classList.add("good");[].forEach.call(app.querySelectorAll(".opt"),function(x){x.disabled=true});
+fb.className="fb good";fb.textContent="🎉 Yes! "+q.why;
+if(ri==0){var p=app.querySelector(".paper");if(p){var a=p.querySelector(".ask");a.className="new"+(a.classList.contains("r")?" r":"");a.innerHTML=B[qi][0]}}
+var n=document.createElement("button");n.className="go";var last=qi+1>=qs.length;n.textContent=!last?"Next ➜":(ri<ROUNDS.length-1?"Next round ➜":"All done! 🏆");
+n.onclick=function(){qi++;if(!last)show();else if(ri<ROUNDS.length-1){ri++;loadRound()}else end()};
+app.appendChild(n);n.focus();
+}else{first=false;beep(260,.25);b.classList.add("bad");b.disabled=true;fb.className="fb bad";fb.textContent="Oops! Not quite. Have another go! 💪"}}
+function end(){
+var tot=B.length+SENT.length+FACT.length,pct=stars/tot,msg=pct>.8?"Super Letter Writer!":pct>.5?"Great letter work!":"Good try! Play again to get more stars!";
+app.innerHTML='<h1>🏆 Well done!</h1><div class="card"><div class="big">💌</div><h2>'+msg+'</h2><p class="stars">'+"⭐".repeat(Math.max(1,Math.round(pct*5)))+'</p><p>You got '+stars+' out of '+tot+' on the first try.</p></div>'+
+'<div class="parts"><div class="part"><b>Remember:</b> addresses, date, “Dear…”, why you write, what went wrong, what you want, “Yours sincerely”, your name.</div></div><button class="go" id="again">Play again 🔁</button>';
+document.getElementById("again").onclick=start}
+start();
+</script>
+</body>
+</html>
